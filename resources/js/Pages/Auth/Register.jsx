@@ -1,7 +1,7 @@
 import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
+import Button from '@/Components/UI/Button';
 import GuestLayout from '@/Layouts/GuestLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 
@@ -41,7 +41,10 @@ export default function Register() {
     };
 
     return (
-        <GuestLayout>
+        <GuestLayout
+            title="Create your account"
+            subtitle="Pick your country — requests are made in its currency."
+        >
             <Head title="Register" />
 
             <form onSubmit={submit}>
@@ -128,7 +131,7 @@ export default function Register() {
                         id="country"
                         name="country"
                         value={data.country}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        className="mt-1 block w-full rounded-md border-zinc-300 bg-white shadow-sm focus:border-zinc-500 focus:ring-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
                         onChange={(e) => selectCountry(e.target.value)}
                         required
                     >
@@ -145,17 +148,20 @@ export default function Register() {
                     />
                 </div>
 
-                <div className="mt-4 flex items-center justify-end">
-                    <Link
-                        href={route('login')}
-                        className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    >
-                        Already registered?
-                    </Link>
+                <div className="mt-6 space-y-5">
+                    <Button type="submit" className="w-full" disabled={processing}>
+                        Create account
+                    </Button>
 
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Register
-                    </PrimaryButton>
+                    <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
+                        Already registered?{' '}
+                        <Link
+                            href={route('login')}
+                            className="font-medium text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
+                        >
+                            Sign in
+                        </Link>
+                    </p>
                 </div>
             </form>
         </GuestLayout>

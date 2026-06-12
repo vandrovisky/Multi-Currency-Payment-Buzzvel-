@@ -28,6 +28,10 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'exchange_rate' => [
+        'url' => env('EXCHANGE_RATE_API_URL', 'https://api.exchangerate-api.com/v4/latest/EUR'),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

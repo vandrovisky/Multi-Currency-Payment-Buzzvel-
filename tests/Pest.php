@@ -18,6 +18,17 @@ pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature');
 
+// API tests need Passport encryption keys and a personal access client.
+pest()->beforeEach(function () {
+    if (! file_exists(storage_path('oauth-private.key'))) {
+        $this->artisan('passport:keys', ['--force' => true]);
+    }
+
+    \Laravel\Passport\Database\Factories\ClientFactory::new()
+        ->asPersonalAccessTokenClient()
+        ->create();
+})->in('Feature/Api');
+
 /*
 |--------------------------------------------------------------------------
 | Expectations

@@ -11,7 +11,26 @@ export default function Register() {
         email: '',
         password: '',
         password_confirmation: '',
+        country: 'BR',
+        currency: 'BRL',
     });
+
+    const countries = [
+        { code: 'BR', currency: 'BRL', label: 'Brazil (BRL)' },
+        { code: 'US', currency: 'USD', label: 'United States (USD)' },
+        { code: 'PT', currency: 'EUR', label: 'Portugal (EUR)' },
+        { code: 'JP', currency: 'JPY', label: 'Japan (JPY)' },
+        { code: 'GB', currency: 'GBP', label: 'United Kingdom (GBP)' },
+    ];
+
+    const selectCountry = (code) => {
+        const country = countries.find((c) => c.code === code);
+        setData((prev) => ({
+            ...prev,
+            country: country.code,
+            currency: country.currency,
+        }));
+    };
 
     const submit = (e) => {
         e.preventDefault();
@@ -98,6 +117,30 @@ export default function Register() {
 
                     <InputError
                         message={errors.password_confirmation}
+                        className="mt-2"
+                    />
+                </div>
+
+                <div className="mt-4">
+                    <InputLabel htmlFor="country" value="Country / Currency" />
+
+                    <select
+                        id="country"
+                        name="country"
+                        value={data.country}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                        onChange={(e) => selectCountry(e.target.value)}
+                        required
+                    >
+                        {countries.map((c) => (
+                            <option key={c.code} value={c.code}>
+                                {c.label}
+                            </option>
+                        ))}
+                    </select>
+
+                    <InputError
+                        message={errors.country || errors.currency}
                         className="mt-2"
                     />
                 </div>

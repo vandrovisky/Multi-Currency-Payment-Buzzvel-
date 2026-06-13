@@ -1,0 +1,79 @@
+name: Deploy to EC2
+
+# Dispara só em push no main do PRÓPRIO repo. NÃO usamos pull_request_target,
+# então PRs de forks nunca recebem os secrets.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # permite disparar manualmente pela aba Actions
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true # se vier push novo, cancela o deploy em andamento
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest # runner hospedado do GitHub (nunca self-hosted em repo público)
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ---- Build do front-end no runner (a EC2 de 1 GB não builda) ----
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install JS deps
+        run: npm ci
+
+      - name: Build assets
+        run: npm run build # gera public/build
+
+      # ---- Preparar a chave SSH ----
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.EC2_HOST }}" >> ~/.ssh/known_hosts
+
+      # ---- Enviar SOMENTE o build pronto para a EC2 ----
+      - name: Upload build (rsync)
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/deploy_key" \
+            public/build/ \
+            "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.EC2_APP_PATH }}/public/build/"
+
+      # ---- Atualizar código + deps PHP + migrações na EC2 ----
+      - name: Remote deploy
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+            "${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}" \
+            "bash -s" << 'EOF'
+          set -euo pipefail
+          cd "${EC2_APP_PATH:-$HOME/app}"
+
+          git pull --ff-only
+
+          # deps PHP de produção via container efêmero (sem instalar PHP no host)
+          docker run --rm -v "$(pwd)":/app -w /app composer:2 \
+            install --no-dev --optimize-autoloader
+
+          # garante containers no ar
+          ./vendor/bin/sail up -d
+
+          # migrações + caches (sem --seed: não recria o banco a cada deploy)
+          ./vendor/bin/sail artisan migrate --force
+          ./vendor/bin/sail artisan config:cache
+          ./vendor/bin/sail artisan route:cache
+          EOF
+        env:
+          EC2_APP_PATH: ${{ secrets.EC2_APP_PATH }}
+
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key

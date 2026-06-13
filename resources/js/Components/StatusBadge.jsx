@@ -1,3 +1,5 @@
+import { __ } from '@/utils/i18n';
+
 const STYLES = {
     pending:
         'bg-amber-50 text-amber-800 ring-amber-600/30 dark:bg-amber-950 dark:text-amber-300 dark:ring-amber-800',
@@ -16,13 +18,20 @@ const DOTS = {
     expired: 'bg-zinc-400',
 };
 
+const LABELS = {
+    pending: 'Pending',
+    approved: 'Approved',
+    rejected: 'Rejected',
+    expired: 'Expired',
+};
+
 export default function StatusBadge({ status }) {
     return (
         <span
-            className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium capitalize ring-1 ring-inset ${STYLES[status]}`}
+            className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${STYLES[status]}`}
         >
             <span className={`h-1.5 w-1.5 rounded-full ${DOTS[status]}`} />
-            {status}
+            {__(LABELS[status])}
         </span>
     );
 }

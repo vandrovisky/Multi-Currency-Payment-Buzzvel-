@@ -18,6 +18,10 @@ pest()->extend(TestCase::class)
     ->use(RefreshDatabase::class)
     ->in('Feature');
 
+// Unit tests boot the framework (for Eloquent casts, enums, config) but never
+// touch the database.
+pest()->extend(TestCase::class)->in('Unit');
+
 // API tests need Passport encryption keys and a personal access client.
 pest()->beforeEach(function () {
     if (! file_exists(storage_path('oauth-private.key'))) {

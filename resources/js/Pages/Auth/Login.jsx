@@ -4,9 +4,11 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import Button from '@/Components/UI/Button';
 import GuestLayout from '@/Layouts/GuestLayout';
+import { __, useTranslations } from '@/utils/i18n';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function Login({ status, canResetPassword }) {
+    useTranslations();
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
@@ -23,10 +25,10 @@ export default function Login({ status, canResetPassword }) {
 
     return (
         <GuestLayout
-            title="Welcome back"
-            subtitle="Sign in to manage your payment requests."
+            title={__('Welcome back')}
+            subtitle={__('Sign in to manage your payment requests.')}
         >
-            <Head title="Log in" />
+            <Head title={__('Sign in')} />
 
             {status && (
                 <div className="mb-4 text-sm font-medium text-emerald-600">
@@ -36,7 +38,7 @@ export default function Login({ status, canResetPassword }) {
 
             <form onSubmit={submit} className="space-y-5">
                 <div>
-                    <InputLabel htmlFor="email" value="Email" />
+                    <InputLabel htmlFor="email" value={__('Email')} />
 
                     <TextInput
                         id="email"
@@ -54,7 +56,7 @@ export default function Login({ status, canResetPassword }) {
                 </div>
 
                 <div>
-                    <InputLabel htmlFor="password" value="Password" />
+                    <InputLabel htmlFor="password" value={__('Password')} />
 
                     <TextInput
                         id="password"
@@ -80,7 +82,7 @@ export default function Login({ status, canResetPassword }) {
                             }
                         />
                         <span className="ms-2 text-sm text-zinc-600 dark:text-zinc-400">
-                            Remember me
+                            {__('Remember me')}
                         </span>
                     </label>
 
@@ -89,22 +91,22 @@ export default function Login({ status, canResetPassword }) {
                             href={route('password.request')}
                             className="text-sm text-zinc-500 underline-offset-4 hover:text-zinc-900 hover:underline dark:text-zinc-400 dark:hover:text-zinc-100"
                         >
-                            Forgot password?
+                            {__('Forgot password?')}
                         </Link>
                     )}
                 </div>
 
                 <Button type="submit" className="w-full" disabled={processing}>
-                    Sign in
+                    {__('Sign in')}
                 </Button>
 
                 <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
-                    Don't have an account?{' '}
+                    {__("Don't have an account?")}{' '}
                     <Link
                         href={route('register')}
                         className="font-medium text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
                     >
-                        Sign up
+                        {__('Sign up')}
                     </Link>
                 </p>
             </form>

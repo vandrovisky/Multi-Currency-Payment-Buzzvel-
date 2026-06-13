@@ -40,3 +40,22 @@ test('guests can also switch locale', function () {
     $this->get('/login')
         ->assertInertia(fn (Assert $page) => $page->where('locale', 'pt_BR'));
 });
+
+test('the chosen locale survives logging in (session regeneration)', function () {
+    $user = User::factory()->create(['password' => 'secret-password']);
+
+    // A guest picks Portuguese...
+    $this->post('/locale', ['locale' => 'pt_BR'])->assertRedirect();
+
+    // ...then logs in, which regenerates the session.
+    $this->post('/login', [
+        'email' => $user->email,
+        'password' => 'secret-password',
+    ])->assertRedirect();
+
+    $this->get('/dashboard')
+        ->assertInertia(fn (Assert $page) => $page
+            ->where('locale', 'pt_BR')
+            ->where('translations.Dashboard', 'Painel')
+        );
+});

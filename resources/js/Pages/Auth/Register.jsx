@@ -3,9 +3,11 @@ import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import Button from '@/Components/UI/Button';
 import GuestLayout from '@/Layouts/GuestLayout';
+import { __, useTranslations } from '@/utils/i18n';
 import { Head, Link, useForm } from '@inertiajs/react';
 
 export default function Register() {
+    useTranslations();
     const { data, setData, post, processing, errors, reset } = useForm({
         name: '',
         email: '',
@@ -42,14 +44,14 @@ export default function Register() {
 
     return (
         <GuestLayout
-            title="Create your account"
-            subtitle="Pick your country — requests are made in its currency."
+            title={__('Create your account')}
+            subtitle={__('Pick your country — requests are made in its currency.')}
         >
-            <Head title="Register" />
+            <Head title={__('Create account')} />
 
             <form onSubmit={submit}>
                 <div>
-                    <InputLabel htmlFor="name" value="Name" />
+                    <InputLabel htmlFor="name" value={__('Name')} />
 
                     <TextInput
                         id="name"
@@ -66,7 +68,7 @@ export default function Register() {
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="email" value="Email" />
+                    <InputLabel htmlFor="email" value={__('Email')} />
 
                     <TextInput
                         id="email"
@@ -83,7 +85,7 @@ export default function Register() {
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                    <InputLabel htmlFor="password" value={__('Password')} />
 
                     <TextInput
                         id="password"
@@ -102,7 +104,7 @@ export default function Register() {
                 <div className="mt-4">
                     <InputLabel
                         htmlFor="password_confirmation"
-                        value="Confirm Password"
+                        value={__('Confirm Password')}
                     />
 
                     <TextInput
@@ -125,7 +127,7 @@ export default function Register() {
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="country" value="Country / Currency" />
+                    <InputLabel htmlFor="country" value={__('Country / Currency')} />
 
                     <select
                         id="country"
@@ -150,16 +152,16 @@ export default function Register() {
 
                 <div className="mt-6 space-y-5">
                     <Button type="submit" className="w-full" disabled={processing}>
-                        Create account
+                        {__('Create account')}
                     </Button>
 
                     <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
-                        Already registered?{' '}
+                        {__('Already registered?')}{' '}
                         <Link
                             href={route('login')}
                             className="font-medium text-zinc-900 underline-offset-4 hover:underline dark:text-zinc-100"
                         >
-                            Sign in
+                            {__('Sign in')}
                         </Link>
                     </p>
                 </div>

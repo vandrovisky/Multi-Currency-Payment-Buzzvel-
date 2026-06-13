@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\PaymentRequestWebController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -9,6 +10,8 @@ use Inertia\Inertia;
 Route::get('/', function () {
     return Inertia::render('Welcome');
 });
+
+Route::post('/locale', [LocaleController::class, 'update'])->name('locale.update');
 
 Route::get('/dashboard', DashboardController::class)
     ->middleware(['auth', 'verified'])->name('dashboard');

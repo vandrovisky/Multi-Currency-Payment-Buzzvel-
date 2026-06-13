@@ -3,9 +3,11 @@ import Card from '@/Components/UI/Card';
 import EmptyState from '@/Components/UI/EmptyState';
 import PageHeader from '@/Components/UI/PageHeader';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { __, useTranslations } from '@/utils/i18n';
 import { formatMoney } from '@/utils/money';
-import { PlusIcon } from '@heroicons/react/20/solid';
+import { MagnifyingGlassIcon, PlusIcon, XMarkIcon } from '@heroicons/react/20/solid';
 import { Head, Link, router, usePage } from '@inertiajs/react';
+import { useEffect, useRef, useState } from 'react';
 
 const FILTERS = [
     { value: null, label: 'All' },
@@ -16,13 +18,41 @@ const FILTERS = [
 ];
 
 export default function Dashboard({ paymentRequests, filters }) {
+    useTranslations();
     const { auth } = usePage().props;
     const isFinance = auth.user.role === 'finance';
+
+    const [search, setSearch] = useState(filters.search ?? '');
+    const isFirstRender = useRef(true);
+
+    // Debounced search: reload the list 350ms after the user stops typing.
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
+        const timer = setTimeout(() => {
+            router.get(
+                route('dashboard'),
+                {
+                    ...(filters.status ? { status: filters.status } : {}),
+                    ...(search ? { search } : {}),
+                },
+                { preserveState: true, preserveScroll: true, replace: true },
+            );
+        }, 350);
+
+        return () => clearTimeout(timer);
+    }, [search]);
 
     const applyFilter = (status) => {
         router.get(
             route('dashboard'),
-            status ? { status } : {},
+            {
+                ...(status ? { status } : {}),
+                ...(search ? { search } : {}),
+            },
             { preserveState: true, preserveScroll: true },
         );
     };
@@ -31,11 +61,13 @@ export default function Dashboard({ paymentRequests, filters }) {
         <AuthenticatedLayout
             header={
                 <PageHeader
-                    title="Payment requests"
+                    title={__('Payment requests')}
                     subtitle={
                         isFinance
-                            ? 'Every request across the company, ready for review.'
-                            : `Your requests, submitted in ${auth.user.currency}.`
+                            ? __('Every request across the company, ready for review.')
+                            : __('Your requests, submitted in :currency.', {
+                                  currency: auth.user.currency,
+                              })
                     }
                     actions={
                         <Link
@@ -43,17 +75,17 @@ export default function Dashboard({ paymentRequests, filters }) {
                             className="inline-flex items-center gap-2 rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
                         >
                             <PlusIcon className="h-4 w-4" />
-                            New request
+                            {__('New request')}
                         </Link>
                     }
                 />
             }
         >
-            <Head title="Dashboard" />
+            <Head title={__('Dashboard')} />
 
             <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8">
-                {/* Status filter */}
-                <div className="border-b border-zinc-200 dark:border-zinc-800">
+                {/* Toolbar: status filter + search */}
+                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800">
                     <div className="-mb-px flex gap-1">
                         {FILTERS.map((filter) => {
                             const active = filters.status === filter.value || (!filters.status && !filter.value);
@@ -67,10 +99,35 @@ export default function Dashboard({ paymentRequests, filters }) {
                                             : 'border-transparent text-zinc-500 hover:border-zinc-300 hover:text-zinc-900 dark:text-zinc-400 dark:hover:border-zinc-600 dark:hover:text-zinc-100'
                                     }`}
                                 >
-                                    {filter.label}
+                                    {__(filter.label)}
                                 </button>
                             );
                         })}
+                    </div>
+
+                    <div className="relative mb-2 w-full sm:mb-0 sm:w-64">
+                        <MagnifyingGlassIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                        <input
+                            type="search"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder={
+                                isFinance
+                                    ? __('Search description or requester…')
+                                    : __('Search description…')
+                            }
+                            className="block w-full rounded-md border-zinc-300 bg-white py-1.5 pl-9 pr-8 text-sm shadow-sm focus:border-zinc-500 focus:ring-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 [&::-webkit-search-cancel-button]:hidden"
+                        />
+                        {search && (
+                            <button
+                                type="button"
+                                onClick={() => setSearch('')}
+                                aria-label={__('Clear search')}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+                            >
+                                <XMarkIcon className="h-4 w-4" />
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -78,25 +135,32 @@ export default function Dashboard({ paymentRequests, filters }) {
                 <Card className="mt-6 overflow-hidden">
                     {paymentRequests.data.length === 0 ? (
                         <EmptyState
-                            title="Nothing here yet"
+                            title={filters.search ? __('No matches') : __('Nothing here yet')}
                             description={
-                                filters.status
-                                    ? `No ${filters.status} requests right now.`
-                                    : 'Submit your first payment request to get started.'
+                                filters.search
+                                    ? __('No requests match ":search".', { search: filters.search })
+                                    : filters.status
+                                      ? __('No :status requests right now.', {
+                                            status: __(
+                                                filters.status.charAt(0).toUpperCase() +
+                                                    filters.status.slice(1),
+                                            ).toLowerCase(),
+                                        })
+                                      : __('Submit your first payment request to get started.')
                             }
                         />
                     ) : (
                         <table className="min-w-full divide-y divide-zinc-100 dark:divide-zinc-800">
                             <thead>
                                 <tr className="text-left text-xs uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-                                    <th className="px-6 py-4 font-medium">Description</th>
+                                    <th className="px-6 py-4 font-medium">{__('Description')}</th>
                                     {isFinance && (
-                                        <th className="px-6 py-4 font-medium">Requested by</th>
+                                        <th className="px-6 py-4 font-medium">{__('Requested by')}</th>
                                     )}
-                                    <th className="px-6 py-4 text-right font-medium">Amount</th>
+                                    <th className="px-6 py-4 text-right font-medium">{__('Amount')}</th>
                                     <th className="px-6 py-4 text-right font-medium">EUR</th>
-                                    <th className="px-6 py-4 font-medium">Status</th>
-                                    <th className="px-6 py-4 font-medium">Created</th>
+                                    <th className="px-6 py-4 font-medium">{__('Status')}</th>
+                                    <th className="px-6 py-4 font-medium">{__('Created')}</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">

@@ -3,7 +3,9 @@ import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import Brand from '@/Components/UI/Brand';
 import FlashToaster from '@/Components/UI/FlashToaster';
+import LocaleSwitcher from '@/Components/UI/LocaleSwitcher';
 import ThemeToggle from '@/Components/UI/ThemeToggle';
+import { __, useTranslations } from '@/utils/i18n';
 import {
     Bars3Icon,
     ChevronDownIcon,
@@ -24,6 +26,7 @@ function Logo() {
 }
 
 export default function AuthenticatedLayout({ header, children }) {
+    useTranslations();
     const user = usePage().props.auth.user;
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
@@ -44,18 +47,19 @@ export default function AuthenticatedLayout({ header, children }) {
                                     href={route('dashboard')}
                                     active={route().current('dashboard')}
                                 >
-                                    Dashboard
+                                    {__('Dashboard')}
                                 </NavLink>
                                 <NavLink
                                     href={route('payment-requests.create')}
                                     active={route().current('payment-requests.create')}
                                 >
-                                    New request
+                                    {__('New request')}
                                 </NavLink>
                             </div>
                         </div>
 
                         <div className="hidden items-center gap-2 sm:flex">
+                            <LocaleSwitcher />
                             <ThemeToggle />
 
                             <Dropdown>
@@ -76,14 +80,14 @@ export default function AuthenticatedLayout({ header, children }) {
 
                                 <Dropdown.Content>
                                     <Dropdown.Link href={route('profile.edit')}>
-                                        Profile
+                                        {__('Profile')}
                                     </Dropdown.Link>
                                     <Dropdown.Link
                                         href={route('logout')}
                                         method="post"
                                         as="button"
                                     >
-                                        Log Out
+                                        {__('Log Out')}
                                     </Dropdown.Link>
                                 </Dropdown.Content>
                             </Dropdown>
@@ -120,13 +124,13 @@ export default function AuthenticatedLayout({ header, children }) {
                             href={route('dashboard')}
                             active={route().current('dashboard')}
                         >
-                            Dashboard
+                            {__('Dashboard')}
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             href={route('payment-requests.create')}
                             active={route().current('payment-requests.create')}
                         >
-                            New request
+                            {__('New request')}
                         </ResponsiveNavLink>
                     </div>
 
@@ -142,14 +146,14 @@ export default function AuthenticatedLayout({ header, children }) {
 
                         <div className="mt-3 space-y-1">
                             <ResponsiveNavLink href={route('profile.edit')}>
-                                Profile
+                                {__('Profile')}
                             </ResponsiveNavLink>
                             <ResponsiveNavLink
                                 method="post"
                                 href={route('logout')}
                                 as="button"
                             >
-                                Log Out
+                                {__('Log Out')}
                             </ResponsiveNavLink>
                         </div>
                     </div>

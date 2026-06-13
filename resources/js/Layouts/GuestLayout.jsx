@@ -2,9 +2,13 @@ import BlurText from '@/Components/UI/BlurText';
 import Brand from '@/Components/UI/Brand';
 import DotGrid from '@/Components/UI/DotGrid';
 import FlashToaster from '@/Components/UI/FlashToaster';
+import LocaleSwitcher from '@/Components/UI/LocaleSwitcher';
+import { useTranslations } from '@/utils/i18n';
 import { Link } from '@inertiajs/react';
 
 export default function GuestLayout({ children, title, subtitle }) {
+    useTranslations();
+
     return (
         <div className="flex min-h-screen bg-white dark:bg-zinc-950">
             <FlashToaster />
@@ -62,7 +66,10 @@ export default function GuestLayout({ children, title, subtitle }) {
             </div>
 
             {/* Right: form */}
-            <div className="flex w-full items-center justify-center px-6 py-12 lg:w-1/2">
+            <div className="relative flex w-full items-center justify-center px-6 py-12 lg:w-1/2">
+                <div className="absolute right-6 top-6">
+                    <LocaleSwitcher />
+                </div>
                 <div className="w-full max-w-sm animate-fade-up">
                     <Link href="/" className="text-xl text-zinc-900 dark:text-zinc-100 lg:hidden">
                         <Brand />
